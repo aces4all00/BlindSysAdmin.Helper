@@ -25,25 +25,25 @@ function New-RandomPassword {
     Default is true.
 
     .PARAMETER UppercaseCharacterset
-    Allows defaul set of uppercase characters to be overriden by
+    Allows default set of uppercase characters to be overriden by
     secifying a value.
     
     Default value is 'ABCDEFGHKLMNOPRSTUVWXYZ'.
 
     .PARAMETER LowercaseCharacterset
-    Allows defaul set of lowercase characters to be overriden by
+    Allows default set of lowercase characters to be overriden by
     secifying a value.
     
     Default value is 'abcdefghiklmnoprstuvwxyz'.
 
     .PARAMETER NumberCharacterset
-    Allows defaul set of number characters to be overriden by
+    Allows default set of number characters to be overriden by
     secifying a value.
     
     Default value is '0123456789'.
 
     .PARAMETER SpecialCharacterset
-    Allows defaul set of special characters to be overriden by
+    Allows default set of special characters to be overriden by
     secifying a value.
     
     Default value is '!$%()=?{@#'.
@@ -92,7 +92,14 @@ function New-RandomPassword {
     Online version: https://aces4all00.github.com/
 
     .LINK
-    Online license: 
+    Online license: https://github.com/aces4all00/BlinSysAdmin.Helper/blob/main/LICENSE
+
+    .LINK
+    Online repository: https://github.com/aces4all00/BlinSysAdmin.Helper
+
+    .NOTES
+    Author: Aces4All00, The Blind SysAdmin
+    Date:   2022-05-25
 
 #>
     [CmdletBinding()]

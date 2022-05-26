@@ -1,2 +1,2 @@
 # BlinSysAdmin.Helper
- Helper modules and function I commonly use with other tools.
+ Helper modules and functions I commonly use with other tools.
