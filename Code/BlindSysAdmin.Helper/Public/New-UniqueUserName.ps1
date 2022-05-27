@@ -1,9 +1,3 @@
-enum UniqueType {
-    Time
-    Date
-    Random
-}
-
 function New-UniqueUserName {
 <#
     .SYNOPSIS
