@@ -4,77 +4,42 @@ function New-RandomPassword {
     Creates new random password.
 
     .DESCRIPTION
-    Creates new random password having a random nnumber of characters between minimum and maximum.
-    Default character sets for uppercase characters, lowercase letter, and number contain all
-    know values. Default values for these character ssets can be overriden by sepcifying other
-    values.
+    Creates new random password having a random nnumber of characters between minimum and maximum. Default character sets for uppercase letters, lowercase letters, and numbers contain all known values. Default values for these character ssets can be overriden by sepcifying other values.
 
     .PARAMETER MinimumLength
     Minimum length of password to generate.
-    
-    Default value is 8
 
     .PARAMETER MaximumLength
     Maximum length of password to generate.
-    
-    Default value is 32
 
-    .PARAMETER IncludeSpecialCharacters
-    Indicates if generated password should include special characters.
-    
-    Default is true.
+    .PARAMETER ExcludeSpecialCharacters
+    Excludes special characters from generated password.
 
     .PARAMETER UppercaseCharacterset
-    Allows default set of uppercase characters to be overriden by
-    secifying a value.
-    
-    Default value is 'ABCDEFGHKLMNOPRSTUVWXYZ'.
+    Allows default set of uppercase characters to be overriden by secifying a value.
 
     .PARAMETER LowercaseCharacterset
-    Allows default set of lowercase characters to be overriden by
-    secifying a value.
-    
-    Default value is 'abcdefghiklmnoprstuvwxyz'.
+    Allows default set of lowercase characters to be overriden by secifying a value.
 
     .PARAMETER NumberCharacterset
-    Allows default set of number characters to be overriden by
-    secifying a value.
-    
-    Default value is '0123456789'.
+    Allows default set of number characters to be overriden by secifying a value.
 
     .PARAMETER SpecialCharacterset
-    Allows default set of special characters to be overriden by
-    secifying a value.
-    
-    Default value is '!$%()=?{@#'.
+    Allows default set of special characters to be overriden by secifying a value.
 
-    .PARAMETER AsSecureString
-    True if a secure sctring should be returned. False if plain text.
-    
-    Default is true.
+    .PARAMETER AsPlainText
+    Returns generated password as plain text string instead of a securestring.
 
     .PARAMETER EnforceComplexity
-    True if characters from at least 3 of the 4 character sets must
-    be present in generated password.
-    
-    Default is true.
-
-    .PARAMETER StartWithAlphanumeric
-    True if first letter of generated password must be from one
-    of the alphanumeric character sets (uppcase letters, lowercase letters,
-    numbers)
-    
-    Default is true.
+    Requires characters from at least 3 of the 4 character sets must be present in generated password.
 
     .INPUTS
     None. New-RandomPassword does not accept values from pipeline.
 
     .OUTPUTS
-    System.Security.SecureString By default New-RandomPassword returns the 
-    generated password as a SecureString.
+    System.Security.SecureString By default New-RandomPassword returns the generated password as a SecureString.
     
-    System.String New-RandomPassword returns the generated password as a 
-    plain text string when AsSecureString is false.
+    System.String New-RandomPassword returns the generated password as a plain text string when AsPlainText sqitch is used.
 
     .EXAMPLE
     PS> New-RandomPassword -AsString $false
@@ -92,14 +57,15 @@ function New-RandomPassword {
     Online version: https://aces4all00.github.com/
 
     .LINK
-    Online license: https://github.com/aces4all00/BlinSysAdmin.Helper/blob/main/LICENSE
+    Online license: https://github.com/aces4all00/BlindSysAdmin.Helper/blob/main/LICENSE
 
     .LINK
-    Online repository: https://github.com/aces4all00/BlinSysAdmin.Helper
+    Online repository: https://github.com/aces4all00/BlindSysAdmin.Helper
 
     .NOTES
     Author: Aces4All00, The Blind SysAdmin
-    Date:   2022-05-25
+
+    Date:   2022-05-26
 
 #>
     [CmdletBinding()]
@@ -111,7 +77,7 @@ function New-RandomPassword {
         [int]$MaximumLength = 32,
 
         [parameter(Mandatory = $false)]
-        [bool]$IncludeSpecialCharacters = $true,
+        [switch]$ExcludeSpecialCharacters,
 
         [parameter(Mandatory = $false)]
         [string]$UppercaseCharacterset = 'ABCDEFGHKLMNOPRSTUVWXYZ',
@@ -126,13 +92,10 @@ function New-RandomPassword {
         [string]$SpecialCharacterset = '!$%()=?{@#',
 
         [parameter(Mandatory = $false)]
-        [bool]$AsSecureString = $true,
+        [switch]$AsPlainText,
 
         [parameter(Mandatory = $false)]
-        [bool]$EnforceComplexity = $true,
-
-        [parameter(Mandatory = $false)]
-        [bool]$StartWithAlphanumeric = $true
+        [switch]$EnforceComplexity
     )
 
     $possibleCharacters = "$(
@@ -141,46 +104,59 @@ function New-RandomPassword {
         $NumberCharacterset
     )"
 
-    $randomLength = Get-Random -Minimum $MinimumLength -Max $MaximumLength
+    switch ($MaximumLength)     {
+        {$_ -gt $MinimumLength} {
+            $randomLength = Get-Random -Minimum $MinimumLength -Max $MaximumLength
+            break
+        }
 
-    if ($StartWithAlphanumeric) {
-        $firstCharacter = $possibleCharacters.ToCharArray() | Get-Random -Count 1
+        {$_ -eq $MinimumLength} {
+            $randomLength = $_
+            break
+        }
+
+        default                 {
+            throw "MaximumLength must be greater than or equal to MinimumLength"
+        }
+    }
+    
+    $firstCharacter = $possibleCharacters.ToCharArray() | Get-Random -Count 1
+    if (-not $ExcludeSpecialCharacters) {
         $possibleCharacters = $possibleCharacters + $SpecialCharacterset
-        $remainingCharacters = ($possibleCharacters.ToCharArray() | Get-Random -Count ($randomLength - 1)) -join ''
-        $password = $firstCharacter + $remainingCharacters
-    } else {
-        $possibleCharacters = $possibleCharacters + $SpecialCharacterset
-        $password = ($possibleCharacters.ToCharArray() | Get-Random -Count $randomLength) -join ''
+    }    
+    $remainingCharacters = ($possibleCharacters.ToCharArray() | Get-Random -Count ($randomLength - 1)) -join ''
+    $password = $firstCharacter + $remainingCharacters
+    
+    if ($EnforceComplexity) {
+        $characterSetCount = 0
+
+        switch -Regex ($password) {
+            "[$UppercaseCharacterset]" {
+                $characterSetCount++
+            }
+    
+            "[$LowercaseCharacterset]" {
+                $characterSetCount++
+            }
+    
+            "[$NumberCharacterset]" {
+                $characterSetCount++
+            }
+    
+            "[$SpecialCharacterset]" {
+                $characterSetCount++
+            }            
+        }
+
+        if ($characterSetCount -lt 3) {
+            Write-Warning -Message "Not complex enough. Retrying"
+            $password = New-RandomPassword @PSBoundParameters
+        }
     }
 
-    $characterSetCount = 0
-
-    switch -Regex ($password) {
-        "[$UppercaseCharacterset]" {
-            $characterSetCount++
-        }
-
-        "[$LowercaseCharacterset]" {
-            $characterSetCount++
-        }
-
-        "[$NumberCharacterset]" {
-            $characterSetCount++
-        }
-
-        "[$SpecialCharacterset]" {
-            $characterSetCount++
-        }
-    }
-
-    if(($EnforceComplexity) -and ($characterSetCount -lt 3)) {
-        "Not complex enough. Retrying"
-        $password = New-RandomPassword @PSBoundParameters
-    }
-
-    if ($AsSecureString) {
-        $password | ConvertTo-SecureString -AsPlainText
-    } else {
+    if ($AsPlainText) {
         $password
+    } else {
+        $password | ConvertTo-SecureString -AsPlainText
     }
 }
