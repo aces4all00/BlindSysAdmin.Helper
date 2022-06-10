@@ -89,7 +89,7 @@ function New-RandomPassword {
         [string]$NumberCharacterset = '0123456789',
 
         [parameter(Mandatory = $false)]
-        [string]$SpecialCharacterset = '!$%()=?{@#',
+        [string]$SpecialCharacterset = '`~,./<>?;:"''\|!@#$%^&*()-_=+[]{}',
 
         [parameter(Mandatory = $false)]
         [switch]$AsPlainText,
