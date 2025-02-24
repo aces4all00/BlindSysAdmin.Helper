@@ -1,16 +1,14 @@
-Get-ChildItem -Path "$PSScriptRoot\Class" -Filter "*.ps1" | ForEach-Object {
-    . $_.FullName
-}
+$scriptPathList = @(
+    "$PSScriptRoot\Class\UniqueType.ps1"
+    "$PSScriptRoot\Public\New-RandomPassword.ps1"
+    "$PSScriptRoot\Public\New-UniqueUserName.ps1"
+    "$PSScriptRoot\Public\Start-WinRmCim.ps1"
+    "$PSScriptRoot\Public\Stop-WinRmCim.ps1"
+    "$PSScriptRoot\Public\Test-IsWindows.ps1"
+)
 
-Get-ChildItem -Path "$PSScriptRoot\Private" -Filter "*.ps1" | ForEach-Object {
-    . $_.FullName
-}
-
-$publicFunctionList = [System.Collections.Generic.List[System.String]]@()
-
-Get-ChildItem -Path "$PSScriptRoot\Public" -Filter "*.ps1" | ForEach-Object {
-    $publicFunctionList.Add($_.BaseName)
-    . $_.FullName
+foreach ($path in $scriptPathList) {
+    . "`"$path`""
 }
 
 Export-ModuleMember -Function $publicFunctionList
