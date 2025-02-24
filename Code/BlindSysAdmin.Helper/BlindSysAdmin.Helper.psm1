@@ -8,7 +8,5 @@ $scriptPathList = @(
 )
 
 foreach ($path in $scriptPathList) {
-    . "`"$path`""
+    . "$path"
 }
-
-Export-ModuleMember -Function $publicFunctionList
